@@ -1,0 +1,26 @@
+import { redirect } from "next/navigation";
+import { industries } from "@/data/industries";
+import OnboardingForm from "./_components/onboarding-form";
+import { getUserOnboardingStatus } from "@/actions/user";
+import { checkUser } from "@/lib/checkUser";
+
+export default async function OnboardingPage() {
+  const user = await checkUser();
+
+  // Check if user is already onboarded
+  const { isOnboarded } = await getUserOnboardingStatus();
+
+  if (isOnboarded) {
+    // Redirect based on role
+    if (user?.role === "recruiter") {
+      redirect("/recruiter/dashboard");
+    }
+    redirect("/dashboard");
+  }
+
+  return (
+    <main>
+      <OnboardingForm industries={industries} />
+    </main>
+  );
+}

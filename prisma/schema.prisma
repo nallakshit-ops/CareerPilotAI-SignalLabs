@@ -1,0 +1,419 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// Enums — Role, Status, and Decision Types
+// ============================================================================
+
+enum UserRole {
+  candidate
+  recruiter
+}
+
+enum InterviewStatus {
+  pending
+  accepted
+  rejected
+  under_ai_review
+  shortlisted
+  scheduled
+  selected
+}
+
+enum AIProcessingStatus {
+  idle
+  processing
+  completed
+  failed
+}
+
+enum CandidateDecision {
+  pending
+  accepted
+  declined
+}
+
+model User {
+  id            String    @id @default(uuid())
+  clerkUserId   String    @unique // clerk user id
+  email         String    @unique
+  name          String?
+  imageUrl      String?
+  industry      String?    // Combined industry-subindustry (e.g., "tech-software-development")
+  industryInsight IndustryInsight? @relation(fields: [industry], references: [industry])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Profile fields
+  bio           String?
+  experience    Int?      // Years of experience
+  
+  // Relations
+  skills               String[]  // Array of skills
+  assessments          Assessment[]
+  resume               Resume?
+  coverLetter          CoverLetter[]
+  skillAnalysisResults SkillAnalysisResult[]
+  skillRecommendations SkillRecommendation[]
+
+  // Role differentiation
+  role                 UserRole  @default(candidate)
+
+  // Recruiter-specific fields (null for candidates)
+  companyName          String?
+  companyRole          String?
+  hiringDomain         String?
+  companyDetails       String?
+
+  // Candidate-specific fields (null for recruiters)
+  videoResumeUrl       String?   // Google Drive link for video introduction
+  resumeDriveUrl       String?   // Google Drive link for resume preview
+
+  // Recruitment relations
+  candidateCalls       InterviewCall[]  @relation("CandidateCalls")
+  recruiterCalls       InterviewCall[]  @relation("RecruiterCalls")
+  recruiterJobs        Job[]            @relation("RecruiterJobs")
+  candidateApplications JobApplication[] @relation("CandidateApplications")
+
+  // Career Signal Intelligence relations
+  careerSignals        CareerSignal[]
+  careerActions        CareerAction[]
+}
+
+model SkillAnalysisResult {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  matchPercentage Float
+  matchedSkills   String[]
+  missingSkills   String[]
+  jobDescription  String   @db.Text
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+}
+
+model SkillRecommendation {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  skillName     String
+  courseName    String
+  platform      String
+  duration      String?
+  certification Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Assessment {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  quizScore     Float     // Overall quiz score
+  questions     Json[]    // Array of {question, answer, userAnswer, isCorrect}
+  category      String    // "Technical", "Behavioral", etc.
+  improvementTip String?  // AI-generated improvement tip
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Resume {
+  id          String    @id @default(cuid())
+  userId      String    @unique    // One resume per user
+  user        User      @relation(fields: [userId], references: [id])
+  content     String    @db.Text // Markdown content
+  atsScore    Float?
+  feedback    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CoverLetter {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  content         String    // Markdown content
+  jobDescription  String?
+  companyName     String    // Name of the company applying to
+  jobTitle        String    // Position applying for
+  status          String    @default("draft") // draft, completed
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// Combined Industry Trends and Salary Insights
+model IndustryInsight {
+  id            String    @id @default(cuid())
+  industry      String    @unique  // The industry this data belongs to (e.g., "tech-software-development")
+  
+  // Users in this industry
+  users         User[]
+  
+  // Salary data
+  salaryRanges  Json[]    // Array of { role: string, min: float, max: float, median: float, location: string? }
+  
+  // Industry trends
+  growthRate    Float     // Industry growth rate
+  demandLevel   String    // "High", "Medium", "Low"
+  topSkills     String[]  // Most in-demand skills
+  
+  // Market conditions
+  marketOutlook String    // "Positive", "Neutral", "Negative"
+  keyTrends     String[]  // Array of current industry trends
+  
+  // Learning suggestions
+  recommendedSkills String[]  // Skills recommended for the industry
+  
+  lastUpdated   DateTime  @default(now())
+  nextUpdate    DateTime  // Scheduled update time
+
+  @@index([industry])
+}
+
+// AI Response Cache - Stores cached responses to reduce API calls
+model AIResponseCache {
+  id            String    @id @default(cuid())
+  cacheKey      String    @unique // SHA-256 hash of normalized input
+  featureType   String    // "skill-gap", "career-sim", "resume-gen", "interview-eval", etc.
+  requestHash   String    // Additional hash for exact matching
+  response      Json      // The cached AI response
+  hitCount      Int       @default(0) // How many times this cache was used
+  expiresAt     DateTime  // TTL-based expiration
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([cacheKey])
+  @@index([featureType])
+  @@index([expiresAt])
+}
+
+// ============================================================================
+// Recruitment Pipeline — Interview Calls & Saved Candidates
+// ============================================================================
+
+model InterviewCall {
+  id                      String             @id @default(cuid())
+  candidateId             String
+  candidate               User               @relation("CandidateCalls", fields: [candidateId], references: [id], onDelete: Cascade)
+  recruiterId             String
+  recruiter               User               @relation("RecruiterCalls", fields: [recruiterId], references: [id], onDelete: Cascade)
+  jobId                   String?
+  applicationId           String?
+  companyName             String
+  jobTitle                String
+  jobDescription          String             @db.Text
+  recruiterMessage        String?            @db.Text
+
+  // Supervity AI Screening — Extensible JSON report
+  // Structure: { strengths[], weaknesses[], matchedSkills[], missingSkills[],
+  //              recommendation, summary, scoreBreakdown: { technicalAlignment,
+  //              communicationFit, experienceFit, skillCoverage, confidenceScore } }
+  aiMatchReport           Json?
+  aiMatchScore            Float?             // Top-level convenience score (0-100)
+
+  // AI processing lifecycle
+  aiProcessingStatus      AIProcessingStatus @default(idle)
+
+  // Recruiter pipeline status vs. Candidate decision (separated concerns)
+  status                  InterviewStatus    @default(pending)
+  candidateDecision       CandidateDecision  @default(pending)
+  currentStage            String?            // "Resume Screening", "AI Review", "Virtual Interview", "Human Interview", "Final Decision"
+
+  // Human interview scheduling
+  googleMeetLink          String?
+  scheduledAt             DateTime?
+  humanMessage            String?            @db.Text
+
+  // AI Virtual Interview evaluation
+  interviewTranscript     Json?              // [{question, answer, score, confidence}]
+  technicalScore          Float?
+  communicationScore      Float?
+  confidenceScore         Float?
+  interviewRecommendation String?            @db.Text
+  interviewSummary        String?            @db.Text
+
+  // Candidate feedback on rejection
+  candidateFeedback       String?            @db.Text
+
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+
+  @@index([candidateId])
+  @@index([recruiterId])
+  @@index([status])
+}
+
+model SavedCandidate {
+  id           String   @id @default(cuid())
+  recruiterId  String
+  candidateId  String
+  createdAt    DateTime @default(now())
+
+  @@unique([recruiterId, candidateId])
+  @@index([recruiterId])
+}
+
+// ============================================================================
+// Job Postings & ATS Application Pipeline Upgrades
+// ============================================================================
+
+enum ApplicationStatus {
+  applied
+  under_review
+  shortlisted
+  interview_invited
+  interview_accepted
+  interview_completed
+  human_round_scheduled
+  selected
+  rejected
+  withdrawn
+}
+
+model Job {
+  id                    String            @id @default(cuid())
+  recruiterId           String
+  recruiter             User              @relation("RecruiterJobs", fields: [recruiterId], references: [id], onDelete: Cascade)
+  title                 String
+  companyName           String
+  description           String            @db.Text
+  requiredSkills        String[]
+  minExperience         Int
+  employmentType        String
+  location              String
+  qualificationThreshold Float             @default(75.0)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  applications          JobApplication[]
+}
+
+model JobApplication {
+  id                 String            @id @default(cuid())
+  jobId              String
+  job                Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidateId        String
+  candidate          User              @relation("CandidateApplications", fields: [candidateId], references: [id], onDelete: Cascade)
+  
+  // Snapshots for historical integrity
+  resumeSnapshot     String?           @db.Text
+  skillsSnapshot     String[]
+  experienceSnapshot Int?
+
+  qualificationScore Float
+  scoreBreakdown     Json
+  
+  status             ApplicationStatus @default(applied)
+  recruiterNotes     String?           @db.Text
+  rejectionFeedback  Json?
+  
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@unique([jobId, candidateId])
+  @@index([jobId])
+  @@index([candidateId])
+  @@index([status])
+}
+
+// ============================================================================
+// Career Signal Intelligence — Production Intelligence Models
+// ============================================================================
+
+enum SignalType {
+  RISK
+  OPPORTUNITY
+  PERFORMANCE
+  IMPROVEMENT
+  SKILL_GAP
+  MARKET_CHANGE
+  CAREER_PATH
+}
+
+enum SignalSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum SignalStatus {
+  DETECTED
+  ANALYZING
+  ACTIVE
+  ACKNOWLEDGED
+  ACTION_STARTED
+  RESOLVED
+  EXPIRED
+}
+
+enum ActionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DISMISSED
+}
+
+model CareerSignal {
+  id              String         @id @default(cuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  signalKey       String         // Deterministic identifier for deduplication (e.g., "skill_gap:rag", "perf:quiz")
+  type            SignalType
+  severity        SignalSeverity
+  title           String
+  summary         String         @db.Text
+  confidence      Float          // 0 - 100
+  impact          Float          // 0 - 100
+  urgency         Float          // 0 - 100
+  score           Float          // Combined 0 - 100
+  hypothesis      String?        @db.Text
+  evidence        Json           // [{ label: string, value: string, details?: string }]
+  recommendations Json           // string[]
+  status          SignalStatus   @default(ACTIVE)
+  detectedAt      DateTime       @default(now())
+  resolvedAt      DateTime?
+  expiresAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  actions         CareerAction[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([signalKey])
+  @@index([score])
+}
+
+model CareerAction {
+  id              String         @id @default(cuid())
+  signalId        String
+  signal          CareerSignal   @relation(fields: [signalId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?        @db.Text
+  priority        SignalSeverity @default(MEDIUM)
+  estimatedDays   Int?           @default(3)
+  actionUrl       String?        // Deep link e.g. "/resume", "/interview", or course URL
+  status          ActionStatus   @default(PENDING)
+  completedAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([signalId])
+  @@index([userId])
+  @@index([status])
+}

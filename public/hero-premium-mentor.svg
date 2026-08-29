@@ -1,0 +1,127 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="94" y1="20" x2="1510" y2="950" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#061223"/>
+      <stop offset="0.5" stop-color="#0A1B31"/>
+      <stop offset="1" stop-color="#140E2D"/>
+    </linearGradient>
+
+    <radialGradient id="orbA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(332 206) rotate(19) scale(490 320)">
+      <stop stop-color="#22D3EE" stop-opacity="0.46"/>
+      <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="orbB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1260 760) rotate(-18) scale(560 360)">
+      <stop stop-color="#8B5CF6" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="glassBorder" x1="354" y1="132" x2="1278" y2="874" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D5F3FF" stop-opacity="0.56"/>
+      <stop offset="1" stop-color="#CABDFF" stop-opacity="0.15"/>
+    </linearGradient>
+
+    <linearGradient id="glassFill" x1="428" y1="198" x2="1245" y2="838" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#102642" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#171039" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <linearGradient id="flow" x1="448" y1="0" x2="1188" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+
+    <filter id="bigGlow" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="26" result="b"/>
+      <feColorMatrix in="b" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.48 0"/>
+    </filter>
+
+    <filter id="cardShadow" x="280" y="100" width="1120" height="840" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#2CD4F9" flood-opacity="0.24"/>
+      <feDropShadow dx="0" dy="34" stdDeviation="38" flood-color="#6F63FF" flood-opacity="0.2"/>
+    </filter>
+
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" stroke="#9FC8E8" stroke-opacity="0.075" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <rect width="1600" height="1000" fill="url(#grid)"/>
+  <ellipse cx="332" cy="206" rx="370" ry="250" fill="url(#orbA)"/>
+  <ellipse cx="1260" cy="760" rx="420" ry="290" fill="url(#orbB)"/>
+
+  <g filter="url(#bigGlow)">
+    <circle cx="1028" cy="300" r="50" fill="#34D7FF"/>
+    <circle cx="550" cy="730" r="44" fill="#A78BFA"/>
+  </g>
+
+  <g filter="url(#cardShadow)">
+    <rect x="338" y="146" width="924" height="706" rx="36" fill="url(#glassFill)"/>
+    <rect x="338.5" y="146.5" width="923" height="705" rx="35.5" stroke="url(#glassBorder)"/>
+  </g>
+
+  <rect x="400" y="208" width="800" height="84" rx="18" fill="#0B1C32" fill-opacity="0.94"/>
+  <rect x="428" y="236" width="218" height="14" rx="7" fill="#A7CDEE" fill-opacity="0.34"/>
+  <rect x="664" y="236" width="168" height="14" rx="7" fill="#8DB6D9" fill-opacity="0.23"/>
+  <rect x="850" y="236" width="140" height="14" rx="7" fill="#8DB6D9" fill-opacity="0.2"/>
+  <rect x="1006" y="236" width="166" height="14" rx="7" fill="#8DB6D9" fill-opacity="0.15"/>
+
+  <rect x="400" y="314" width="246" height="252" rx="22" fill="#0A182C" fill-opacity="0.95"/>
+  <rect x="668" y="314" width="246" height="252" rx="22" fill="#0A182C" fill-opacity="0.95"/>
+  <rect x="936" y="314" width="246" height="252" rx="22" fill="#0A182C" fill-opacity="0.95"/>
+
+  <text x="428" y="356" fill="#E6F7FF" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Resume Builder</text>
+  <text x="696" y="356" fill="#E6F7FF" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Interview Prep</text>
+  <text x="964" y="356" fill="#E6F7FF" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Skill Gap AI</text>
+
+  <rect x="428" y="382" width="186" height="12" rx="6" fill="#A9D1F2" fill-opacity="0.28"/>
+  <rect x="428" y="405" width="160" height="10" rx="5" fill="#87B6DF" fill-opacity="0.2"/>
+  <rect x="428" y="426" width="130" height="10" rx="5" fill="#87B6DF" fill-opacity="0.18"/>
+  <rect x="428" y="455" width="160" height="8" rx="4" fill="#7EB2DD" fill-opacity="0.12"/>
+  <rect x="428" y="474" width="140" height="8" rx="4" fill="#7EB2DD" fill-opacity="0.11"/>
+
+  <path d="M696 468C726 446 756 488 786 456C812 429 838 390 864 416" stroke="#3ED9FF" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="786" cy="456" r="7" fill="#3ED9FF"/>
+  <circle cx="864" cy="416" r="7" fill="#9E85FF"/>
+  <rect x="696" y="500" width="160" height="10" rx="5" fill="#90B9DE" fill-opacity="0.18"/>
+  <rect x="696" y="522" width="130" height="10" rx="5" fill="#90B9DE" fill-opacity="0.14"/>
+
+  <rect x="964" y="382" width="190" height="16" rx="8" fill="#ABD6F6" fill-opacity="0.2"/>
+  <rect x="964" y="412" width="170" height="20" rx="10" fill="#22D3EE" fill-opacity="0.28"/>
+  <rect x="964" y="444" width="150" height="20" rx="10" fill="#8B5CF6" fill-opacity="0.26"/>
+  <rect x="964" y="476" width="180" height="20" rx="10" fill="#22D3EE" fill-opacity="0.2"/>
+
+  <path d="M448 640C570 560 656 682 776 612C894 543 960 466 1083 510C1125 525 1157 548 1188 575" stroke="url(#flow)" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="776" cy="612" r="8" fill="#22D3EE"/>
+  <circle cx="1083" cy="510" r="8" fill="#A78BFA"/>
+
+  <rect x="400" y="604" width="800" height="188" rx="24" fill="#091425" fill-opacity="0.92"/>
+  <text x="428" y="650" fill="#E7F8FF" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700">Career Roadmap</text>
+  <rect x="430" y="672" width="242" height="84" rx="16" fill="#11243D" fill-opacity="0.92"/>
+  <rect x="448" y="694" width="140" height="10" rx="5" fill="#ABD5F5" fill-opacity="0.28"/>
+  <rect x="448" y="714" width="96" height="20" rx="10" fill="#22D3EE" fill-opacity="0.28"/>
+  <text x="708" y="723" fill="#86C8EE" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="700">AI Recommendation Engine</text>
+
+  <g>
+    <rect x="1208" y="126" width="258" height="112" rx="22" fill="#0E1C32" fill-opacity="0.94"/>
+    <rect x="1208.5" y="126.5" width="257" height="111" rx="21.5" stroke="#C6E8FF" stroke-opacity="0.27"/>
+    <text x="1236" y="171" fill="#DDF6FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Interview Confidence</text>
+    <text x="1236" y="215" fill="#5BE3FF" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="800">+95%</text>
+  </g>
+
+  <g>
+    <rect x="156" y="700" width="260" height="122" rx="22" fill="#0E1C32" fill-opacity="0.94"/>
+    <rect x="156.5" y="700.5" width="259" height="121" rx="21.5" stroke="#D2C6FF" stroke-opacity="0.26"/>
+    <text x="184" y="746" fill="#EFE9FF" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Job Match Potential</text>
+    <text x="184" y="794" fill="#B39AFF" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="800">+98%</text>
+  </g>
+
+  <g>
+    <circle cx="268" cy="420" r="84" fill="#0F2239" fill-opacity="0.9"/>
+    <circle cx="268" cy="400" r="38" fill="#A4D9F8" fill-opacity="0.25"/>
+    <path d="M213 487C226 450 252 436 268 436C284 436 310 450 323 487" stroke="#A4D9F8" stroke-opacity="0.6" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="320" cy="370" r="20" fill="#22D3EE" fill-opacity="0.24"/>
+    <path d="M320 354V386M304 370H336" stroke="#95ECFF" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>
